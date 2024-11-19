@@ -1,0 +1,33 @@
+version: '3.8'
+
+services:
+  idm:
+    image: idm:latest
+    restart: always
+    container_name: idm-container
+    environment:
+      - KEYCLOAK_ADMIN=admin
+      - KEYCLOAK_ADMIN_PASSWORD=admin
+      - KC_NEW_SVC_USER=qGahthLJjzT3h2aRDY
+      - KC_NEW_SVC_PAWD=ubiBgh5hjuCyKzJRwWpic
+      - KC_MAINAPP_SUPER_USR=superusr
+      - KC_MAINAPP_SUPER_PWD=superpwd
+      - KC_MAINAPP_CLIENT_SECRET=Mgb4X/5RaqAojphemSxN+NLOoSm/+lMLzcHEFmlbrU4
+      - KC_WY_MAINAPP_CLIENT_SECRET=5RaqAojphemSxNlMLzcHEFmlbrU4Mgb4X
+      - KC_DB=mysql
+      - KC_DB_URL_HOST=host.docker.internal
+      - KC_DB_URL_PORT=7118
+      - KC_DB_URL_DATABASE=keycdb
+      - KC_DB_USERNAME=keycuser
+      - KC_DB_PASSWORD=keycpass
+      - KC_HOSTNAME_URL=http://host.docker.internal:7119
+      - KC_HOSTNAME_STRICT=false
+      - KC_HTTP_ENABLED=true
+      - KC_PROXY=edge
+      - KC_PROXY_HEADERS=xforwarded
+      - 'KC_RED_URLS=["http://localhost:3000/*","http://host.docker.internal:3000/*","http://localhost:7113/*","http://host.docker.internal:7113/*","http://localhost:7117/*","http://host.docker.internal:7117/*","http://localhost:7122/*","http://host.docker.internal:7122/*"]'
+      - IDP_SMTP_URL=host.docker.internal:7120
+      - IDP_EML_ID=kcadmin@yopmail.com
+    ports:
+      - "7119:8080"
+    command: start
