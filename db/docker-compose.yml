@@ -1,0 +1,14 @@
+services:
+  db:
+    image: db:latest
+    restart: always
+    container_name: db-container
+    environment:
+      MYSQL_ROOT_PASSWORD: inderroot
+    ports:
+      - "7118:3306"
+    volumes:
+      - "mysqldbvolume:/var/lib/mysql:cached"
+volumes:
+  mysqldbvolume:
+    driver: local

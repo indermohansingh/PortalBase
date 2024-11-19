@@ -1,0 +1,62 @@
+routes:
+  -
+    id: route_to_portal
+    uri: /*
+    "vars": [
+        ["server_port", "==", "${{CP_GATEWAY_PORTAL_PORT}}"]   
+    ]
+    upstream_id: upstream_portal
+  -
+    id: route_to_admin_portal
+    uri: /*
+    "vars": [
+        ["server_port", "==", "${{CP_GATEWAY_ADMIN_PORTAL_PORT}}"]   
+    ]
+    upstream_id: upstream_admin_portal
+  -
+    id: route_to_server
+    uri: /*
+    "vars": [
+        ["server_port", "==", "${{CP_GATEWAY_SERVER_PORT}}"]   
+    ]
+    plugins: 
+      openid-connect: 
+        client_id: mainappclt
+        client_secret: Mgb4X/5RaqAojphemSxN+NLOoSm/+lMLzcHEFmlbrU4
+        discovery: http://host.docker.internal:7119/realms/mainapprlm/.well-known/openid-configuration
+        scope: openid profile
+        bearer_only: true
+        realm: mainapprlm
+        redirect_uri: http://host.docker.internal:7117/
+        logout_path: /logout
+      cors:
+        allow_origin: "*"
+        allow_methods: "GET, POST, PUT, DELETE, OPTIONS"
+        allow_headers: "Content-Type, Authorization"
+        expose_headers: "Authorization"
+        max_age: 3600
+    upstream_id: upstream_server
+
+upstreams:
+  # Upstream for portal
+  - id: upstream_portal
+    nodes:
+      - host: "${{CP_PORTAL_HOST}}"
+        port: "${{CP_PORTAL_PORT}}"
+        weight: 1
+    type: roundrobin
+  - id: upstream_admin_portal
+    nodes:
+      - host: "${{CP_ADMIN_PORTAL_HOST}}"
+        port: "${{CP_ADMIN_PORTAL_PORT}}"
+        weight: 1
+    type: roundrobin
+  - id: upstream_server
+    nodes:
+      - host: "${{CP_SERVER_HOST}}"
+        port: "${{CP_SERVER_PORT}}"
+        weight: 1
+    type: roundrobin
+
+
+#END

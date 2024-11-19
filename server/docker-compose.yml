@@ -1,0 +1,7 @@
+services:
+  server:
+    image: server:latest
+    restart: always
+    container_name: server-container
+    ports:
+      - "7124:3001"

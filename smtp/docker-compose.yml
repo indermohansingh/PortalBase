@@ -1,0 +1,7 @@
+services:
+  smtp:
+    image: djfarrelly/maildev:latest
+    restart: always
+    container_name: smtp-container
+    ports:
+      - "7120:25"
