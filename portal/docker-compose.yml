@@ -1,0 +1,7 @@
+services:
+  portal:
+    image: portal:latest
+    restart: always
+    container_name: portal-container
+    ports:
+      - "7111:3000"
