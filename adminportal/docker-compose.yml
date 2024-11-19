@@ -1,0 +1,16 @@
+services:
+  adminportal:
+    image: adminportal:latest
+    restart: always
+    container_name: adminportal-container
+    environment:
+      - KEYCLOAK_CLIENT_ID_MAINAPPRLM=mainappclt
+      - KEYCLOAK_CLIENT_SECRET_MAINAPPRLM=Mgb4X/5RaqAojphemSxN+NLOoSm/+lMLzcHEFmlbrU4
+      - KEYCLOAK_CLIENT_ID_WYRLM=mainappclt
+      - KEYCLOAK_CLIENT_SECRET_WYRLM=5RaqAojphemSxNlMLzcHEFmlbrU4Mgb4X
+      - KEYCLOAK_ISSUER=http://host.docker.internal:7119/realms/
+      - NEXT_PUBLIC_BACEND_SERVER_URL=http://localhost:3001
+      - NEXTAUTH_URL=http://host.docker.internal:7122
+      - NEXTAUTH_SECRET=HkdemDq6a0mjQP6BKOkczyHedcF70tSC9esuBUuUvlk=
+    ports:
+      - "7121:3000"
