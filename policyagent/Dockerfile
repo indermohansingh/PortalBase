@@ -1,0 +1,2 @@
+FROM openpolicyagent/opa:latest
+
