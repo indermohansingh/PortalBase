@@ -5,7 +5,7 @@ import Logout from '../components/Logout'
 import Cookies from 'js-cookie';
 
 async function ShowLoginOrLogout() {
-  const selectedRealm = Cookies.get('selectedRealm') || "mainapprlm";
+  const selectedRealm = Cookies.get('selectedRealm') || "";
   const session = await getServerSession(getAuthOptions(selectedRealm));
   if (session) {
     return <div>

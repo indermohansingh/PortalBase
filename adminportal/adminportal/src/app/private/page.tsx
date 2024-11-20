@@ -4,7 +4,7 @@ import { getAuthOptions } from '@/app/api/auth/[...nextauth]/route';
 import Cookies from 'js-cookie';
 
 export default async function Private() {
-  const selectedRealm = Cookies.get('selectedRealm') || "mainapprlm";
+  const selectedRealm = Cookies.get('selectedRealm') || "";
   const session = await getServerSession(getAuthOptions(selectedRealm));
   if (session) {
     return <div className='flex flex-col space-y-3 justify-center items-center h-screen'>

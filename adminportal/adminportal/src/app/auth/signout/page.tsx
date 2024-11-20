@@ -5,7 +5,7 @@ import { redirect } from "next/navigation";
 import Cookies from 'js-cookie';
 
 export default async function SignoutPage() {
-  const selectedRealm = Cookies.get('selectedRealm') || "mainapprlm";
+  const selectedRealm = Cookies.get('selectedRealm') || "";
   const session = await getServerSession(getAuthOptions(selectedRealm));
   
   if (session) {

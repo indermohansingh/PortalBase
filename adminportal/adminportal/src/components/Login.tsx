@@ -10,8 +10,8 @@ export default function Login() {
     //get realm based on email
     let isWY = false;
     isWY = email.endsWith("@wy.com");
-    let realm = "mainapprlm"
-    if (isWY) realm = "wyrlm"
+    let realm = ""
+    if (isWY) realm = "WYSSO"
     Cookies.set('selectedRealm', realm, { expires: 7 }); 
     signIn("keycloak", { realm: realm })
   }

@@ -175,62 +175,20 @@ while true; do
         ./bin/kcadm.sh set-password --username $KC_MAIN_APP_SUPER_USR --new-password $KC_MAIN_APP_SUPER_PWD -r mainapprlm
 
 
-        echo =======Creating Federated Realm: wyrlm==========
-
-        # create federated realm for WY
-        # Create realm wyrlm
-        echo "creating realm wyrlm..."
-        ./bin/kcadm.sh create realms -s realm=wyrlm -s enabled=true
-
-        # set realm setting for wy
-        realm_setting_wyrlm='
-        {
-            "smtpServer": {
-                "replyToDisplayName": "'$KC_EML_DISPL_NAME'",
-                "starttls": "false",
-                "auth": "",
-                "port": "25",
-                "host": "'$IDP_SMTP_URL'",
-                "replyTo": "'$IDP_EML_ID'",
-                "from": "'$IDP_EML_ID'",
-                "fromDisplayName": "'$KC_EML_DISPL_NAME'",
-                "ssl": "false"
-            },
-            "registrationAllowed": false,
-            "registrationEmailAsUsername": false,
-            "rememberMe": true,
-            "verifyEmail": true,
-            "loginWithEmailAllowed": true,
-            "duplicateEmailsAllowed": false,
-            "resetPasswordAllowed": true,
-            "editUsernameAllowed": false,
-            "bruteForceProtected": false,
-            "permanentLockout": false,
-            "loginTheme": "mainapptheme",
-            "accountTheme": "mainapptheme",
-            "adminTheme": "mainapptheme",
-            "emailTheme": "mainapptheme"
-        }
-        '
-
-        #Apply setting to wyrlm
-        echo "setting wyrlm configs..."
-        echo "$realm_setting_wyrlm" | ./bin/kcadm.sh update realms/wyrlm -f -
-
-        echo =======Creating IDP for wyrlm==========
+        echo =======Creating IDP for WY==========
 
         #Create IDP Settings
-        idp_setting_wyrlm='
+        idp_setting_wy='
             {
                 "alias": "WYSSO",
                 "providerId": "keycloak-oidc",
                 "enabled": true,
                 "config": {
-                    "authorizationUrl": "http://host.docker.internal:7123/realms/mainapprlm/protocol/openid-connect/auth",
-                    "tokenUrl": "http://host.docker.internal:7123/realms/mainapprlm/protocol/openid-connect/token",
-                    "logoutUrl": "http://host.docker.internal:7123/realms/mainapprlm/protocol/openid-connect/logout",
-                    "userInfoUrl": "http://host.docker.internal:7123/realms/mainapprlm/protocol/openid-connect/userinfo",
-                    "issuer": "http://host.docker.internal:7123/realms/mainapprlm",
+                    "authorizationUrl": "http://host.docker.internal:7123/realms/mainrlm/protocol/openid-connect/auth",
+                    "tokenUrl": "http://host.docker.internal:7123/realms/mainrlm/protocol/openid-connect/token",
+                    "logoutUrl": "http://host.docker.internal:7123/realms/mainrlm/protocol/openid-connect/logout",
+                    "userInfoUrl": "http://host.docker.internal:7123/realms/mainrlm/protocol/openid-connect/userinfo",
+                    "issuer": "http://host.docker.internal:7123/realms/mainrlm",
                     "clientId": "mainappclt",
                     "clientSecret": "Mgb4X/5RaqAojphemSxN+NLOoSm/+lMLzcHEFmlbrU4wy",
                     "syncRegistrations": false
@@ -238,62 +196,30 @@ while true; do
             }
         '
         #Create IDP..
-        echo "creating IDP for wyrlm..."
-        echo "$idp_setting_wyrlm" | ./bin/kcadm.sh create identity-provider/instances -r wyrlm -f -
-        echo "$idp_setting_wyrlm" | ./bin/kcadm.sh update identity-provider/instances/WYSSO -r wyrlm -f -
+        echo "creating IDP for WY..."
+        echo "$idp_setting_wy" | ./bin/kcadm.sh create identity-provider/instances -r mainapprlm -f -
+        echo "$idp_setting_wy" | ./bin/kcadm.sh update identity-provider/instances/WYSSO -r mainapprlm -f -
 
-        echo =======Creating Browser Flow for wyrlm==========
+        echo =======Creating Browser Flow for WY IDP==========
 
-        #get execution step id for browser flow..
-        echo "get execution step id for browser flow.."
-        CID=$(./bin/kcadm.sh get authentication/flows/browser/executions -r wyrlm  | jq -r '.[] | select(.providerId == "identity-provider-redirector").authenticationConfig')
-        if [ "$CID" = "null" ] ; then
-            #defaultProvider config doesnt exist, so create..
-            CID=$(./bin/kcadm.sh get authentication/flows/browser/executions -r wyrlm  | jq -r '.[] | select(.providerId == "identity-provider-redirector").id')
-            ./bin/kcadm.sh create "authentication/executions/$CID/config" -s alias=WYSSO  -s 'config."defaultProvider"=WYSSO' -r wyrlm
-        else
-            #defaultProvider config exists, so update..
-            ./bin/kcadm.sh update "authentication/config/$CID" -s alias=WYSSO  -s 'config."defaultProvider"=WYSSO' -r wyrlm
-        fi
-        #make redirection mandatory..
-        CID=$(./bin/kcadm.sh get authentication/flows/browser/executions -r wyrlm  | jq -r '.[] | select(.providerId == "identity-provider-redirector").id')
-        echo '{"id": "'$CID'", "requirement" : "REQUIRED" }' | ./bin/kcadm.sh update authentication/flows/browser/executions  -r wyrlm -f -
+        ACCESS_TOKEN=$(curl -X POST "$KC_SERVER_URL/realms/master/protocol/openid-connect/token" \
+        -H "Content-Type: application/x-www-form-urlencoded" \
+        -d "client_id=admin-cli" \
+        -d "username=$KC_ADMIN_USER" \
+        -d "password=$KC_ADMIN_PWD" \
+        -d "grant_type=password" | jq -r '.access_token')
 
-        echo =======Creating first login Flow for wyrlm==========
-        CID=$(./bin/kcadm.sh get authentication/flows/first%20broker%20login/executions -r wyrlm  | jq -r '.[] | select(.providerId == "idp-review-profile").id')
-        echo '{"id": "'$CID'", "requirement" : "DISABLED" }' | ./bin/kcadm.sh update authentication/flows/first%20broker%20login/executions  -r wyrlm -f -
+        curl -X POST "$KC_SERVER_URL/admin/realms/mainapprlm/authentication/flows/first%20broker%20login/copy" \
+        -H "Authorization: Bearer $ACCESS_TOKEN" \
+        -H "Content-Type: application/json" \
+        -d '{
+            "newName": "firstbrokerlogin2",
+            "newDescription": "Description of the new copied flow"
+        }'
 
-
-        echo =======Creating Client for wyrlm==========
-
-        # Create wyrlm's portal client
-        echo "creating client mainappclt ..."
-        CID=$(./bin/kcadm.sh create clients -r wyrlm -s clientId=mainappclt -s redirectUris=$KC_RED_URLS -i)
-
-        client_settings='
-        {
-            "name": "",
-            "description": "",
-            "rootUrl": "",
-            "adminUrl": "",
-            "baseUrl": "",
-            "alwaysDisplayInConsole": false,
-            "consentRequired": false,
-            "standardFlowEnabled": true,
-            "implicitFlowEnabled": false,
-            "directAccessGrantsEnabled": false,
-            "serviceAccountsEnabled": false,
-            "publicClient": false,
-            "frontchannelLogout": false,
-            "redirectUris": '$KC_RED_URLS',
-            "secret": "'$KC_WY_MAIN_APP_CLIENT_SECRET'"
-        }
-        '
-        # get cleint id for mainappclt 
-        echo "updating client mainappclt ..."
-        CID=$(./bin/kcadm.sh get clients -r wyrlm  | jq -r '.[] | select(.clientId == "mainappclt").id')
-        # update mainappclt with above settings.
-        echo "$client_settings" | ./bin/kcadm.sh update clients/$CID -r wyrlm -f -
+        echo =======Creating first login Flow for new flow==========
+        CID=$(./bin/kcadm.sh get authentication/flows/firstbrokerlogin2/executions -r mainapprlm  | jq -r '.[] | select(.providerId == "idp-review-profile").id')
+        echo '{"id": "'$CID'", "requirement" : "DISABLED" }' | ./bin/kcadm.sh update authentication/flows/firstbrokerlogin2/executions  -r mainapprlm -f -
 
         echo "Init completed..."
 

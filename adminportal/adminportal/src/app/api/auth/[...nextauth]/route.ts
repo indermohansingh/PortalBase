@@ -8,8 +8,8 @@ function requestRefreshOfAccessToken(token: JWT, selectedRealm:string) {
   return fetch(`${process.env.KEYCLOAK_ISSUER}/protocol/openid-connect/token`, {
     headers: { "Content-Type": "application/x-www-form-urlencoded" },
     body: new URLSearchParams({
-      client_id: process.env[`KEYCLOAK_CLIENT_ID_${selectedRealm.toUpperCase()}`] || process.env.KEYCLOAK_CLIENT_ID_MAINAPPRLM,
-      client_secret: process.env[`KEYCLOAK_CLIENT_SECRET_${selectedRealm.toUpperCase()}`] || process.env.KEYCLOAK_CLIENT_SECRET_MAINAPPRLM,
+      client_id: process.env.KEYCLOAK_CLIENT_ID_MAINAPPRLM,
+      client_secret: process.env.KEYCLOAK_CLIENT_SECRET_MAINAPPRLM,
       grant_type: "refresh_token",
       refresh_token: token.refreshToken!,
     }),
@@ -22,9 +22,14 @@ export function getAuthOptions (selectedRealm: string) : AuthOptions {
   return {
     providers: [
       KeycloakProvider({
-        clientId: process.env[`KEYCLOAK_CLIENT_ID_${selectedRealm.toUpperCase()}`] || process.env.KEYCLOAK_CLIENT_ID_MAINAPPRLM,
-        clientSecret: process.env[`KEYCLOAK_CLIENT_SECRET_${selectedRealm.toUpperCase()}`] || process.env.KEYCLOAK_CLIENT_SECRET_MAINAPPRLM,
-        issuer: `${process.env.KEYCLOAK_ISSUER}${selectedRealm}`
+        clientId: process.env.KEYCLOAK_CLIENT_ID_MAINAPPRLM,
+        clientSecret: process.env.KEYCLOAK_CLIENT_SECRET_MAINAPPRLM,
+        issuer: `${process.env.KEYCLOAK_ISSUER}`,
+        authorization: {
+          params: {
+            kc_idp_hint: selectedRealm
+          },
+        }
       })
     ],
     pages: {
@@ -78,7 +83,7 @@ export function getAuthOptions (selectedRealm: string) : AuthOptions {
 }
 
 function myauth (req: any, res: any) {
-  const selectedRealm = req.cookies.get("selectedRealm")?.value || "mainapprlm";
+  const selectedRealm = req.cookies.get("selectedRealm")?.value || "";
   return NextAuth(getAuthOptions(selectedRealm))(req, res)
 }
 

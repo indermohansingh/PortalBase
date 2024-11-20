@@ -6,7 +6,7 @@ import Cookies from 'js-cookie';
 const apiUrl = `${process.env.NEXT_PUBLIC_BACEND_SERVER_URL}/createdb` ;
 
 export default async function Private() {
-  const selectedRealm = Cookies.get('selectedRealm') || "mainapprlm";
+  const selectedRealm = Cookies.get('selectedRealm') || "";
   const session = await getServerSession(getAuthOptions(selectedRealm));
   if (session) {
     const result = await axios.post(apiUrl,null,{

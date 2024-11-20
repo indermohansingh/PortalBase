@@ -26,7 +26,7 @@ interface SignInPageProp {
 }
 
 export default async function Signin({ searchParams: { callbackUrl, error } }: SignInPageProp) {
-  const selectedRealm = Cookies.get('selectedRealm') || "mainapprlm";
+  const selectedRealm = Cookies.get('selectedRealm') || "";
   const session = await getServerSession(getAuthOptions(selectedRealm));
   if (session) {
     redirect(callbackUrl || "/")

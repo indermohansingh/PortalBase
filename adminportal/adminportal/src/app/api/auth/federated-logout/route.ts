@@ -16,7 +16,7 @@ function handleEmptyToken() {
 
 function sendEndSessionEndpointToURL(token: JWT, selectedRealm: string) {
   const endSessionEndPoint = new URL(
-    `${process.env.KEYCLOAK_ISSUER}${selectedRealm}/protocol/openid-connect/logout`
+    `${process.env.KEYCLOAK_ISSUER}/protocol/openid-connect/logout`
   );
   const params: Record<string, string> = logoutParams(token);
   const endSessionParams = new URLSearchParams(params);
@@ -26,7 +26,7 @@ function sendEndSessionEndpointToURL(token: JWT, selectedRealm: string) {
 
 export async function GET(req: NextRequest) {
   try {
-    const selectedRealm = req.cookies.get("selectedRealm")?.value || "mainapprlm";
+    const selectedRealm = req.cookies.get("selectedRealm")?.value || "";
     const token = await getToken({ req })
     if (token) {
       return sendEndSessionEndpointToURL(token, selectedRealm);
