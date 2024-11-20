@@ -41,9 +41,9 @@ while true; do
         echo "creating creds for user..."
         ./bin/kcadm.sh set-password --username $KC_NEW_SVC_USR --new-password $KC_NEW_SVC_PWD -r $KC_ADMIN_REALM
 
-        # Create realm mainapprlm
-        echo "creating realm mainapprlm..."
-        ./bin/kcadm.sh create realms -s realm=mainapprlm -s enabled=true
+        # Create realm mainrlm
+        echo "creating realm mainrlm..."
+        ./bin/kcadm.sh create realms -s realm=mainrlm -s enabled=true
                 
         #update your specific resource, in this case we're updating the attribute smtpServer with the according values
         #realm_setting=$(cat ./init/realm-setting.json)
@@ -102,13 +102,13 @@ while true; do
         echo "setting master configs..."
         echo "$realm_setting_master" | ./bin/kcadm.sh update realms/master -f -
 
-        #Apply setting to mainapprlm
-        echo "setting mainapprlm configs..."
-        echo "$realm_setting" | ./bin/kcadm.sh update realms/mainapprlm -f -
+        #Apply setting to mainrlm
+        echo "setting mainrlm configs..."
+        echo "$realm_setting" | ./bin/kcadm.sh update realms/mainrlm -f -
 
-        # Create mainapprlm's portal client
+        # Create mainrlm's portal client
         echo "creating client mainappclt ..."
-        CID=$(./bin/kcadm.sh create clients -r mainapprlm -s clientId=mainappclt -s redirectUris=$KC_RED_URLS -i)
+        CID=$(./bin/kcadm.sh create clients -r mainrlm -s clientId=mainappclt -s redirectUris=$KC_RED_URLS -i)
 
         client_settings='
         {
@@ -131,49 +131,49 @@ while true; do
         '
         # get cleint id for mainappclt 
         echo "updating client mainappclt ..."
-        CID=$(./bin/kcadm.sh get clients -r mainapprlm  | jq -r '.[] | select(.clientId == "mainappclt").id')
+        CID=$(./bin/kcadm.sh get clients -r mainrlm  | jq -r '.[] | select(.clientId == "mainappclt").id')
         # update mainappclt with above settings.
-        echo "$client_settings" | ./bin/kcadm.sh update clients/$CID -r mainapprlm -f -
+        echo "$client_settings" | ./bin/kcadm.sh update clients/$CID -r mainrlm -f -
 
-        # Create mainapprlm's portal roles
+        # Create mainrlm's portal roles
         echo "creating roles ..."
-        ./bin/kcadm.sh create roles -r mainapprlm -s name=SuperAdmin -s description="Super Admin"
+        ./bin/kcadm.sh create roles -r mainrlm -s name=SuperAdmin -s description="Super Admin"
 
         # Create main app super user
         echo "Creating main app super user..."
-        ./bin/kcadm.sh create users -r mainapprlm -s username=$KC_MAIN_APP_SUPER_USR -s enabled=true
+        ./bin/kcadm.sh create users -r mainrlm -s username=$KC_MAIN_APP_SUPER_USR -s enabled=true
 
         # make user  admin
         echo "adding roles to user..."
-        ./bin/kcadm.sh add-roles --uusername $KC_MAIN_APP_SUPER_USR --rolename SuperAdmin -r mainapprlm
+        ./bin/kcadm.sh add-roles --uusername $KC_MAIN_APP_SUPER_USR --rolename SuperAdmin -r mainrlm
 
         # Create credentials for new user
         echo "creating creds for user..."
-        ./bin/kcadm.sh set-password --username $KC_MAIN_APP_SUPER_USR --new-password $KC_MAIN_APP_SUPER_PWD -r mainapprlm
+        ./bin/kcadm.sh set-password --username $KC_MAIN_APP_SUPER_USR --new-password $KC_MAIN_APP_SUPER_PWD -r mainrlm
 
         # Create user1
         echo "Creating user1..."
-        ./bin/kcadm.sh create users -r mainapprlm -s username=user1 -s enabled=true
+        ./bin/kcadm.sh create users -r mainrlm -s username=user1 -s enabled=true
 
         # Create credentials for user1
         echo "creating creds for user1..."
-        ./bin/kcadm.sh set-password --username user1 --new-password password1 -r mainapprlm
+        ./bin/kcadm.sh set-password --username user1 --new-password password1 -r mainrlm
 
         # Create user2
         echo "Creating user2..."
-        ./bin/kcadm.sh create users -r mainapprlm -s username=user2 -s enabled=true
+        ./bin/kcadm.sh create users -r mainrlm -s username=user2 -s enabled=true
 
         # Create credentials for user2
         echo "creating creds for user2..."
-        ./bin/kcadm.sh set-password --username user2 --new-password password2 -r mainapprlm
+        ./bin/kcadm.sh set-password --username user2 --new-password password2 -r mainrlm
 
         # Create user3
         echo "Creating user3..."
-        ./bin/kcadm.sh create users -r mainapprlm -s username=user3 -s enabled=true
+        ./bin/kcadm.sh create users -r mainrlm -s username=user3 -s enabled=true
 
         # Create credentials for user3
         echo "creating creds for user3..."
-        ./bin/kcadm.sh set-password --username user3 --new-password password3 -r mainapprlm
+        ./bin/kcadm.sh set-password --username user3 --new-password password3 -r mainrlm
 
         echo "Init completed..."
 
