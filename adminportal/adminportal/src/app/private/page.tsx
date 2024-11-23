@@ -14,15 +14,17 @@ export default async function Private() {
         <Logout />
       </div>
       <br></br>
-      <a href="/private/createdb">Create DB Here</a>
+      <a href="/private/dropdb">Drop DB Here (needs SuperAdmin role. roleid of 1)</a>
       <br></br>
-      <a href="/private/user">User list Here</a>
+      <a href="/private/createdb">Create DB Here (needs SuperAdmin role. roleid of 1)</a>
       <br></br>
-      <a href="/private/tenant">Tenant list Here</a>
+      <a href="/private/domainrealmmapping">Domain Realm Mapping list Here (needs TenantAdmin role. roleid of 2)</a>
       <br></br>
-      <a href="/private/role">Role list Here</a>
+      <a href="/private/role">Role list Here (needs TenantAdmin role. roleid of 2)</a>
       <br></br>
-      <a href="/private/domainrealmmapping">Domain Realm Mapping list Here</a>
+      <a href="/private/tenant">Tenant list Here. must pass tenantid. (needs Manager role. roleid of 3)</a>
+      <br></br>
+      <a href="/private/user">User list Here. must pass tenantid. (needs CaseWorker role. roleid of 4)</a>
     </div>
   }
 }

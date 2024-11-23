@@ -90,7 +90,7 @@ const CrudPage: React.FC = () => {
       <ul>
         {items.map((item) => (
           <li key={item.roleid} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
-            <span>{item.rolename}</span>
+            <span>{item.roleid} - {item.rolename}</span>
             <div>
               <button onClick={() => handleEdit(item.roleid)} style={{ marginRight: '10px' }}>Edit</button>
               <button onClick={() => handleDelete(item.roleid)}>Delete</button>

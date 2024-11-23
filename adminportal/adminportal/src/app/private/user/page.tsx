@@ -6,6 +6,8 @@ import { useSession } from 'next-auth/react';
 type Item = {
     userid: number;
   email: string;
+  tenantid: number;
+  roleid: number;
 };
 
 const CrudPage: React.FC = () => {
@@ -100,7 +102,7 @@ const CrudPage: React.FC = () => {
       <ul>
         {items.map((item) => (
           <li key={item.userid} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
-            <span>{item.email}</span>
+            <span>{item.userid} - {item.email} - {item.tenantid} - {item.roleid}</span>
             <div>
               <button onClick={() => handleEdit(item.userid)} style={{ marginRight: '10px' }}>Edit</button>
               <button onClick={() => handleDelete(item.userid)}>Delete</button>

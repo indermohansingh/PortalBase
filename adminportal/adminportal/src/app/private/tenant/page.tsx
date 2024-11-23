@@ -30,6 +30,8 @@ const CrudPage: React.FC = () => {
 
   // Create or Update
   const handleSave = async () => {
+    console.error('not supported');
+    return;
     try {
       if (editingId !== null) {
         // Update
@@ -53,15 +55,19 @@ const CrudPage: React.FC = () => {
 
   // Edit
   const handleEdit = (tenantid: number) => {
+    console.error('not supported');
+    return;
     const itemToEdit = items.find((item) => item.tenantid === tenantid);
     if (itemToEdit) {
         setEditingId(tenantid);
-      setTenantname(itemToEdit.tenantname);
+      setTenantname(itemToEdit?.tenantname || '');
     }
   };
 
   // Delete
   const handleDelete = async (tenantid: number) => {
+    console.error('not supported');
+    return;
     try {
       await axios.delete(`${apiUrl}/${tenantid}`);
       setItems((prev) => prev.filter((item) => item.tenantid !== tenantid));
@@ -90,7 +96,7 @@ const CrudPage: React.FC = () => {
       <ul>
         {items.map((item) => (
           <li key={item.tenantid} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
-            <span>{item.tenantname}</span>
+            <span>{item.tenantid} - {item.tenantname}</span>
             <div>
               <button onClick={() => handleEdit(item.tenantid)} style={{ marginRight: '10px' }}>Edit</button>
               <button onClick={() => handleDelete(item.tenantid)}>Delete</button>

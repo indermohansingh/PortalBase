@@ -1,6 +1,7 @@
 const express = require('express');
 const mysql = require('mysql2');
 const bodyParser = require('body-parser');
+const kchelper = require('./kchelper.cjs');
 
 const app = express();
 const port = 3001;
@@ -47,57 +48,134 @@ async function runQuery(query, inputs) {
   })
 }
 
+// DROP DB
+app.post('/dropdb', async (req, res) => {
+  const queries = [];
+  let query = "";
+
+  // create domain realm mapping
+  query = 'DROP TABLE domainrealmmapping ';
+  queries.push(runQuery(query, []));
+
+  // create tenants
+  query = 'DROP TABLE tenants ';
+  queries.push(runQuery(query, []));
+
+  // create roles
+  query = 'DROP TABLE roles  ';
+  queries.push(runQuery(query, []));
+
+  // create users
+
+  query = 'DROP TABLE users';
+  queries.push(runQuery(query, []));
+
+  const results = await Promise.allSettled(queries);
+  res.status(201).json(results);
+
+});
+
 // CREATE DB
 app.post('/createdb', async (req, res) => {
-    const queries = [];
-    let query = 'CREATE TABLE users ( \
-        userid INT AUTO_INCREMENT PRIMARY KEY, \
-        email VARCHAR(255) NOT NULL UNIQUE \
-        ) \
-    ';
-    
-    queries.push(runQuery(query, []));
+  const queries = [];
+  let query = "";
 
-    query = 'CREATE TABLE tenants ( \
-        tenantid INT AUTO_INCREMENT PRIMARY KEY, \
-        tenantname VARCHAR(255) NOT NULL UNIQUE \
-        ) \
-    ';
+  // create domain realm mapping
+  query = 'CREATE TABLE domainrealmmapping ( \
+    domain VARCHAR(255) NOT NULL PRIMARY KEY , \
+    realm VARCHAR(255) NOT NULL \
+    ) \
+  ';
+  queries.push(runQuery(query, []));
 
-    queries.push(runQuery(query, []));
+  query = 'insert into domainrealmmapping ( domain, realm ) values ("wy.com", "WYSSO")  ';
+  queries.push(runQuery(query, []));
 
-    query = 'CREATE TABLE roles ( \
-        roleid INT AUTO_INCREMENT PRIMARY KEY, \
-        rolename VARCHAR(255) NOT NULL UNIQUE \
-        ) \
-    ';
+  // create tenants
+  query = 'CREATE TABLE tenants ( \
+    tenantid INT PRIMARY KEY, \
+    tenantname VARCHAR(255) NOT NULL UNIQUE \
+    ) \
+  ';
+  queries.push(runQuery(query, []));
 
-    queries.push(runQuery(query, []));
+  query = 'insert into tenants ( tenantid, tenantname ) values (-1, "SuperTenant")  ';
+  queries.push(runQuery(query, []));
 
-    query = 'CREATE TABLE tenantuserrolemapping ( \
-        tenantid INT NOT NULL , \
-        userid INT NOT NULL , \
-        roleid INT NOT NULL , \
-        PRIMARY KEY (tenantid, userid) \
-        ) \
-    ';
+  query = 'insert into tenants ( tenantid, tenantname ) values (1, "WY")  ';
+  queries.push(runQuery(query, []));
 
-    queries.push(runQuery(query, []));
+  query = 'insert into tenants ( tenantid, tenantname ) values (2, "MO")  ';
+  queries.push(runQuery(query, []));
 
-    query = 'CREATE TABLE domainrealmmapping ( \
-        domain VARCHAR(255) NOT NULL PRIMARY KEY , \
-        realm VARCHAR(255) NOT NULL \
-        ) \
-    ';
+  // create roles
+  query = 'CREATE TABLE roles ( \
+    roleid INT PRIMARY KEY, \
+    rolename VARCHAR(255) NOT NULL UNIQUE \
+    ) \
+  ';
+  queries.push(runQuery(query, []));
 
-    queries.push(runQuery(query, []));
+  query = 'insert into roles ( roleid, rolename ) values (1, "SuperAdmin")  ';
+  queries.push(runQuery(query, []));
 
-    const results = await Promise.allSettled(queries);
+  query = 'insert into roles ( roleid, rolename ) values (2, "TenantAdmin")  ';
+  queries.push(runQuery(query, []));
 
-    res.status(201).json(results);
+  query = 'insert into roles ( roleid, rolename ) values (3, "Manager")  ';
+  queries.push(runQuery(query, []));
+
+  query = 'insert into roles ( roleid, rolename ) values (4,"CaseWorker")  ';
+  queries.push(runQuery(query, []));
+
+  // create users
+
+  query = 'CREATE TABLE users ( \
+    userid INT AUTO_INCREMENT PRIMARY KEY, \
+    tenantid INT NOT NULL , \
+    email VARCHAR(255) NOT NULL , \
+    roleid INT NOT NULL  \
+    ) \
+  ';
+  queries.push(runQuery(query, []));
+
+  query = 'CREATE UNIQUE INDEX users_email_tenant ON users (tenantid, email);'
+  queries.push(runQuery(query, []));
+
+  queries.push(createUserInKC(-1, "superadmin@cp.com", 1));
+  queries.push(createUserInKC(1, "wyadmin@wy.com", 2));
+  queries.push(createUserInKC(1, "wymanager@wy.com", 3));
+  queries.push(createUserInKC(1, "wycaseworkerr@wy.com", 4));
+  queries.push(createUserInKC(1, "wycw_momgr@gmail.com", 4));
+  queries.push(createUserInKC(2, "moadmin@mo.com", 2));
+  queries.push(createUserInKC(2, "momanager@mo.com", 3));
+  queries.push(createUserInKC(2, "mocaseworkerr@mo.com", 4));
+  queries.push(createUserInKC(2, "wycw_momgr@gmail.com", 3));
+
+  const results = await Promise.allSettled(queries);
+  res.status(201).json(results);
 
 });
   
+async function createUserInKC(tenantid, email, roleid) {
+    //check if user is already there. 
+    //   if not, create it with roles [{tenantid, roleid}]
+    //   if yes, get roles for the user. then (a) delete role for tenantid, if available; (b) insert roles with {tenantid, roleid}
+    //create user in db
+
+    //do kc stuff (upsert)
+    const queries = [];
+
+    queries.push( kchelper.createOrUpdateUserInKC(tenantid, email, roleid));
+
+    //create user in db
+    let query = "";
+    query = `insert into users ( tenantid, email, roleid ) values (${tenantid}, "${email}", ${roleid})`;
+    queries.push(runQuery(query, []));
+    const results = await Promise.allSettled(queries);
+    return results;    
+}
+
 // CREATE user
 app.post('/users', (req, res) => {
   const { email } = req.body;

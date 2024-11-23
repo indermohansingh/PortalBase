@@ -41,6 +41,8 @@ const CrudPage: React.FC = () => {
 
   // Create or Update
   const handleSave = async () => {
+    console.error('not supported');
+    return;
     try {
       if (editingId !== null) {
         // Update
@@ -64,16 +66,20 @@ const CrudPage: React.FC = () => {
 
   // Edit
   const handleEdit = (domain: string) => {
+    console.error('not supported');
+    return;
     const itemToEdit = items.find((item) => item.domain === domain);
     if (itemToEdit) {
         setEditingId(domain);
-      setRealm(itemToEdit.realm);
-      setDomain(itemToEdit.domain)
+      setRealm(itemToEdit?.realm || '');
+      setDomain(itemToEdit?.domain || '')
     }
   };
 
   // Delete
   const handleDelete = async (domain: string) => {
+    console.error('not supported');
+    return;
     try {
       await axios.delete(`${apiUrl}/${domain}`);
       setItems((prev) => prev.filter((item) => item.domain !== domain));
