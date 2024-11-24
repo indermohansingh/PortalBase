@@ -17,7 +17,7 @@ const CrudPage: React.FC = () => {
   let tenantid = "-1";
   if (searchParams) tenantid = searchParams.get('tenantid') || ""; 
 
-  const apiUrl = `${process.env.NEXT_PUBLIC_BACEND_SERVER_URL}/dropdb` ;
+  const apiUrl = `${process.env.NEXT_PUBLIC_BACEND_SERVER_URL}/dropdb?tenantid=${tenantid}` ;
 
   let x = useSession()?.data?.accessToken || '';
   if (x!=session ) setSession(x);

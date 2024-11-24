@@ -1,10 +1,9 @@
 const axios = require('axios');
 
 // Configuration (same as before)
-const keycloakUrl = 'http://host.docker.internal:7119';
 const clientId = 'admin-cli';
 
-async function getAdminAccessToken(adminUsername, adminPassword) {
+async function getAdminAccessToken(adminUsername, adminPassword, keycloakUrl) {
   const response = await axios.post(
     `${keycloakUrl}/realms/master/protocol/openid-connect/token`,
     new URLSearchParams({
@@ -18,7 +17,7 @@ async function getAdminAccessToken(adminUsername, adminPassword) {
   return response.data.access_token;
 }
 
-async function findUserByUsername(accessToken, username, realm) {
+async function findUserByUsername(accessToken, username, realm, keycloakUrl) {
   try {
     const response = await axios.get(
       `${keycloakUrl}/admin/realms/${realm}/users`,
@@ -41,7 +40,7 @@ async function findUserByUsername(accessToken, username, realm) {
   }
 }
 
-async function updateUser(accessToken, userId, userData, realm) {
+async function updateUser(accessToken, userId, userData, realm, keycloakUrl) {
   await axios.put(
     `${keycloakUrl}/admin/realms/${realm}/users/${userId}`,
     userData,
@@ -50,7 +49,7 @@ async function updateUser(accessToken, userId, userData, realm) {
   console.log('User updated successfully');
 }
 
-async function createUser(accessToken, userData, realm) {
+async function createUser(accessToken, userData, realm, keycloakUrl) {
   await axios.post(
     `${keycloakUrl}/admin/realms/${realm}/users`,
     userData,
@@ -59,15 +58,17 @@ async function createUser(accessToken, userData, realm) {
   console.log('User created successfully');
 }
 
-module.exports.createOrUpdateUserInKC = async function (tenantid, email, roleid) {
+module.exports.createOrUpdateUserInKC = async function (tenantid, email, roleid, for_role_use_tenant_1=false) {
+         //for_role_use_tenant_1 is used to create user in WY KC but user with role is also needed in CP KC and in CP KC, role has to match WY ten.
   try {
-    const realm = tenantid==2?'mainrlm':'mainapprlm';
-    const adminUsername = tenantid==2?'adminwy':'admin'; 
-    const adminPassword = tenantid==2?'adminwy':'admin'; 
+    const realm = tenantid==1?'mainrlm':'mainapprlm';
+    const adminUsername = tenantid==1?'adminwy':'admin'; 
+    const adminPassword = tenantid==1?'adminwy':'admin'; 
+    const keycloakUrl = tenantid==1?'http://host.docker.internal:7123':'http://host.docker.internal:7119';
 
-    const token = await getAdminAccessToken(adminUsername, adminPassword);
+    const token = await getAdminAccessToken(adminUsername, adminPassword, keycloakUrl);
     const username = email;
-    const cprole = {tenantid, roleid}
+    const cprole = {tenantid: for_role_use_tenant_1 ? 1 : tenantid, roleid}
     const userData = {
       username,
       email: email,
@@ -86,7 +87,7 @@ module.exports.createOrUpdateUserInKC = async function (tenantid, email, roleid)
       },
     };
 
-    const existingUser = await findUserByUsername(token, username, realm);
+    const existingUser = await findUserByUsername(token, username, realm, keycloakUrl);
 
     if (existingUser) {
       console.log('User exists, updating...');
@@ -97,7 +98,7 @@ module.exports.createOrUpdateUserInKC = async function (tenantid, email, roleid)
           //cprolesbytenant exists . if one of the role is for same tenantid, then replace it. else add a new element to array
           let roleArray = [];
           try { roleArray = JSON.parse (existingAttributes.cprolesbytenant) || []} catch {}
-          const index = roleArray.findIndex(item => item.tenantid === tenantid);
+          const index = roleArray.findIndex(item => item.tenantid === cprole.tenantid);
           if (index !== -1) {
             // Replace the existing object if tenantid matches
             roleArray[index] = cprole;
@@ -116,11 +117,15 @@ module.exports.createOrUpdateUserInKC = async function (tenantid, email, roleid)
         //attribute doesnt exist. will add it as part of userdata. nothing needed here
       }
 
-      await updateUser(token, existingUser.id, userData, realm);
+      await updateUser(token, existingUser.id, userData, realm, keycloakUrl);
     } else {
       console.log('User does not exist, creating...');
-      await createUser(token, userData, realm);
+      await createUser(token, userData, realm, keycloakUrl);
     }
+
+    //for wy users.. add them to CP KC as well
+    if (tenantid==1) await this.createOrUpdateUserInKC(2, email, roleid, true)
+
   } catch (error) {
     console.error('Error:', error.response?.data || error.message);
   }

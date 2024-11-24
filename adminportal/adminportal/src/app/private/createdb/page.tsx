@@ -17,7 +17,7 @@ const CrudPage: React.FC = () => {
   let tenantid = "-1";
   if (searchParams) tenantid = searchParams.get('tenantid') || ""; 
 
-  const apiUrl = `${process.env.NEXT_PUBLIC_BACEND_SERVER_URL}/createdb` ;
+  const apiUrl = `${process.env.NEXT_PUBLIC_BACEND_SERVER_URL}/createdb?tenantid=${tenantid}` ;
 
   let x = useSession()?.data?.accessToken || '';
   if (x!=session ) setSession(x);
@@ -25,7 +25,8 @@ const CrudPage: React.FC = () => {
   // Fetch items from the backend
   const fetchItems = async () => {
     try {
-      const response = await axios.post(apiUrl, {
+      console.log(session)
+      const response = await axios.post(apiUrl,null, {
         headers: {
           'Authorization': `Bearer ${session}`,
         }

@@ -13,17 +13,17 @@ export default async function Private() {
         <ShowLoginOrLogout />
       </div>
       <br></br>
-      <a href="/private/dropdb">Drop DB Here (needs SuperAdmin role, which is roleid of 1)</a>
+      Drop DB Here. Needs SuperAdmin role, which is roleid of 1. passing <a className="text-blue-500 hover:underline" href="/private/dropdb?tenantid=-1">  tenantid of -1 </a> or  <a className="text-blue-500 hover:underline" href="/private/dropdb?tenantid=1">  tenantid of WY(1) </a>
       <br></br>
-      <a href="/private/createdb">Create DB Here (needs SuperAdmin role, which is roleid of 1)</a>
+      Create DB Here. Needs SuperAdmin role, which is roleid of 1. passing <a className="text-blue-500 hover:underline" href="/private/createdb?tenantid=-1">  tenantid of -1 </a> or  <a className="text-blue-500 hover:underline" href="/private/createdb?tenantid=1">  tenantid of WY(1) </a>
       <br></br>
-      Domain Realm Mapping list Here. Needs TenantAdmin role, which is roleid of 2. passing <a className="text-blue-500 hover:underline" href="/private/domainrealmmapping?tenantid=1">  tenantid of 1 </a> or  <a className="text-blue-500 hover:underline" href="/private/domainrealmmapping?tenantid=2">  tenantid of 2 </a>
+      Domain Realm Mapping list Here. Needs TenantAdmin role, which is roleid of 2. passing <a className="text-blue-500 hover:underline" href="/private/domainrealmmapping?tenantid=1">  tenantid of WY(1) </a> or  <a className="text-blue-500 hover:underline" href="/private/domainrealmmapping?tenantid=2">  tenantid of MO(2) </a>
       <br></br>
-      Role list Here. Needs TenantAdmin role, which is roleid of 2. passing <a className="text-blue-500 hover:underline" href="/private/role?tenantid=1">  tenantid of 1 </a> or  <a className="text-blue-500 hover:underline" href="/private/role?tenantid=2">  tenantid of 2 </a>
+      Role list Here. Needs TenantAdmin role, which is roleid of 2. passing <a className="text-blue-500 hover:underline" href="/private/role?tenantid=1">  tenantid of WY(1) </a> or  <a className="text-blue-500 hover:underline" href="/private/role?tenantid=2">  tenantid of MO(2) </a>
       <br></br>
-      Tenant Here. Needs Manager role, which is roleid of 3. passing <a className="text-blue-500 hover:underline" href="/private/tenant?tenantid=1">  tenantid of 1 </a> or  <a className="text-blue-500 hover:underline" href="/private/tenant?tenantid=2">  tenantid of 2 </a>
+      Tenant Here. Needs Manager role, which is roleid of 3. passing <a className="text-blue-500 hover:underline" href="/private/tenant?tenantid=1">  tenantid of WY(1) </a> or  <a className="text-blue-500 hover:underline" href="/private/tenant?tenantid=2">  tenantid of MO(2) </a>
       <br></br>
-      User Here. Needs CaseWorker role, which is roleid of 4. passing <a className="text-blue-500 hover:underline" href="/private/user?tenantid=1">  tenantid of 1 </a> or  <a className="text-blue-500 hover:underline" href="/private/user?tenantid=2">  tenantid of 2 </a>
+      User Here. Needs CaseWorker role, which is roleid of 4. passing <a className="text-blue-500 hover:underline" href="/private/user?tenantid=1">  tenantid of WY(1) </a> or  <a className="text-blue-500 hover:underline" href="/private/user?tenantid=2">  tenantid of MO(2) </a>
     </div>
   }
 }

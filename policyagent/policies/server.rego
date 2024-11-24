@@ -8,7 +8,7 @@ default allow = false
 
 allow {
     startswith(request.path, "/createdb")
-    input.method == "POST"
+    input.request.method == "POST"
     cprole1 := getrole
     cprole1 == 1
 }
@@ -16,7 +16,7 @@ allow {
 
 allow {
     startswith(request.path, "/dropdb")
-    input.method == "POST"
+    input.request.method == "POST"
     cprole1 := getrole
     cprole1 == 1
 }
