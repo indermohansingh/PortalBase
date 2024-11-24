@@ -7,7 +7,7 @@ export default async function Home() {
         <br></br>
         <div><ShowLoginOrLogout /> </div>
         <br></br>
-        <a href="/private">Secured Pages Here</a>
+        <a className="text-blue-500 hover:underline" href="/private">Secured Pages Here</a>
       </div>
   )
 }

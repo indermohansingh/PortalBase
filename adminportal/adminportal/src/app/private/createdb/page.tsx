@@ -25,7 +25,6 @@ const CrudPage: React.FC = () => {
   // Fetch items from the backend
   const fetchItems = async () => {
     try {
-      if (!session) return;
       const response = await axios.post(apiUrl, {
         headers: {
           'Authorization': `Bearer ${session}`,

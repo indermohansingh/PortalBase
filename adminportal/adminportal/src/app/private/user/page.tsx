@@ -2,6 +2,8 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useSession } from 'next-auth/react';
+import { useSearchParams } from 'next/navigation';
+import ShowLoginOrLogout from '@/components/ShowLoginOrLogout';
 
 type Item = {
     userid: number;
@@ -15,15 +17,17 @@ const CrudPage: React.FC = () => {
   const [email, setEmail] = useState<string>('');
   const [editingId, setEditingId] = useState<number | null>(null);
   const [session, setSession] = useState(useSession()?.data?.accessToken || '');
+  const searchParams = useSearchParams();
+  let tenantid = "-1";
+  if (searchParams) tenantid = searchParams.get('tenantid') || ""; 
 
-  const apiUrl = `${process.env.NEXT_PUBLIC_BACEND_SERVER_URL}/users` ;
+  const apiUrl = `${process.env.NEXT_PUBLIC_BACEND_SERVER_URL}/users?tenantid=${tenantid}` ;
   let x = useSession()?.data?.accessToken || '';
   if (x!=session ) setSession(x);
 
   // Fetch items from the backend
   const fetchItems = async () => {
     try {
-      if (!session) return;
       const response = await axios.get(apiUrl, {
         headers: {
           'Authorization': `Bearer ${session}`,
@@ -84,7 +88,10 @@ const CrudPage: React.FC = () => {
 
   return (
     <div style={{ maxWidth: '500px', margin: '0 auto' }}>
-      <h1>Users Management</h1>
+      <div>
+        <ShowLoginOrLogout />
+      </div>
+      <h1>Users Management. Needs CaseWorker role, which is roleid of 4.</h1>
 
       <div style={{ marginBottom: '20px' }}>
         <input

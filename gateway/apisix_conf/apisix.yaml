@@ -17,7 +17,7 @@ routes:
     id: route_to_server_for_options
     uri: /*
     "vars": [
-        ["server_port", "==", "${{CP_GATEWAY_SERVER_PORT}}"]   
+        ["server_port", "==", "${{CP_GATEWAY_SERVER_PORT}}"],
         ["request_method", "==", "OPTIONS"]
     ]
     upstream_id: upstream_server
@@ -30,9 +30,6 @@ routes:
     ]
     plugins: 
       getroleforcp: {}
-      config:
-        headers:
-          Referrer-Policy: "no-referrer"
       openid-connect: 
         client_id: mainappclt
         client_secret: Mgb4X/5RaqAojphemSxN+NLOoSm/+lMLzcHEFmlbrU4
@@ -42,12 +39,6 @@ routes:
         realm: mainapprlm
         redirect_uri: http://host.docker.internal:7117/
         logout_path: /logout
-      cors:
-        allow_origin: "*"
-        allow_methods: "GET, POST, PUT, DELETE, OPTIONS"
-        allow_headers: "Content-Type, Authorization"
-        expose_headers: "Authorization"
-        max_age: 3600
       opa:
         host: "http://host.docker.internal:7126"
         policy: apisixauthz

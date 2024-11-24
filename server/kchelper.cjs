@@ -2,12 +2,9 @@ const axios = require('axios');
 
 // Configuration (same as before)
 const keycloakUrl = 'http://host.docker.internal:7119';
-const realm = 'mainapprlm';
-const adminUsername = 'admin';
-const adminPassword = 'admin';
 const clientId = 'admin-cli';
 
-async function getAdminAccessToken() {
+async function getAdminAccessToken(adminUsername, adminPassword) {
   const response = await axios.post(
     `${keycloakUrl}/realms/master/protocol/openid-connect/token`,
     new URLSearchParams({
@@ -21,7 +18,7 @@ async function getAdminAccessToken() {
   return response.data.access_token;
 }
 
-async function findUserByUsername(accessToken, username) {
+async function findUserByUsername(accessToken, username, realm) {
   try {
     const response = await axios.get(
       `${keycloakUrl}/admin/realms/${realm}/users`,
@@ -44,7 +41,7 @@ async function findUserByUsername(accessToken, username) {
   }
 }
 
-async function updateUser(accessToken, userId, userData) {
+async function updateUser(accessToken, userId, userData, realm) {
   await axios.put(
     `${keycloakUrl}/admin/realms/${realm}/users/${userId}`,
     userData,
@@ -53,7 +50,7 @@ async function updateUser(accessToken, userId, userData) {
   console.log('User updated successfully');
 }
 
-async function createUser(accessToken, userData) {
+async function createUser(accessToken, userData, realm) {
   await axios.post(
     `${keycloakUrl}/admin/realms/${realm}/users`,
     userData,
@@ -64,7 +61,11 @@ async function createUser(accessToken, userData) {
 
 module.exports.createOrUpdateUserInKC = async function (tenantid, email, roleid) {
   try {
-    const token = await getAdminAccessToken();
+    const realm = tenantid==2?'mainrlm':'mainapprlm';
+    const adminUsername = tenantid==2?'adminwy':'admin'; 
+    const adminPassword = tenantid==2?'adminwy':'admin'; 
+
+    const token = await getAdminAccessToken(adminUsername, adminPassword);
     const username = email;
     const cprole = {tenantid, roleid}
     const userData = {
@@ -85,7 +86,7 @@ module.exports.createOrUpdateUserInKC = async function (tenantid, email, roleid)
       },
     };
 
-    const existingUser = await findUserByUsername(token, username);
+    const existingUser = await findUserByUsername(token, username, realm);
 
     if (existingUser) {
       console.log('User exists, updating...');
@@ -115,10 +116,10 @@ module.exports.createOrUpdateUserInKC = async function (tenantid, email, roleid)
         //attribute doesnt exist. will add it as part of userdata. nothing needed here
       }
 
-      await updateUser(token, existingUser.id, userData);
+      await updateUser(token, existingUser.id, userData, realm);
     } else {
       console.log('User does not exist, creating...');
-      await createUser(token, userData);
+      await createUser(token, userData, realm);
     }
   } catch (error) {
     console.error('Error:', error.response?.data || error.message);

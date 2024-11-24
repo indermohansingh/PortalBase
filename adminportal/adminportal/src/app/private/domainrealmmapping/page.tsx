@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useSession } from 'next-auth/react';
 import { useSearchParams } from 'next/navigation';
+import ShowLoginOrLogout from '@/components/ShowLoginOrLogout';
 
 type Item = {
   domain: string;
@@ -27,7 +28,6 @@ const CrudPage: React.FC = () => {
   // Fetch items from the backend
   const fetchItems = async () => {
     try {
-      if (!session) return;
       const response = await axios.get(apiUrl, {
         headers: {
           'Authorization': `Bearer ${session}`,
@@ -94,7 +94,10 @@ const CrudPage: React.FC = () => {
 
   return (
     <div style={{ maxWidth: '500px', margin: '0 auto' }}>
-      <h1>Domain/Realm Management</h1>
+      <div>
+        <ShowLoginOrLogout />
+      </div>
+      <h1>Domain/Realm Management. Needs TenantAdmin role, which is roleid of 2.</h1>
 
       <div style={{ marginBottom: '20px' }}>
         <input

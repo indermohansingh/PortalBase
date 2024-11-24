@@ -2,6 +2,8 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useSession } from 'next-auth/react';
+import { useSearchParams } from 'next/navigation';
+import ShowLoginOrLogout from '@/components/ShowLoginOrLogout';
 
 type Item = {
     tenantid: number;
@@ -13,8 +15,11 @@ const CrudPage: React.FC = () => {
   const [tenantname, setTenantname] = useState<string>('');
   const [editingId, setEditingId] = useState<number | null>(null);
   const [session, setSession] = useState(useSession()?.data?.accessToken || '');
+  const searchParams = useSearchParams();
+  let tenantid = "-1";
+  if (searchParams) tenantid = searchParams.get('tenantid') || ""; 
 
-  const apiUrl = `${process.env.NEXT_PUBLIC_BACEND_SERVER_URL}/tenants` ;
+  const apiUrl = `${process.env.NEXT_PUBLIC_BACEND_SERVER_URL}/tenants?tenantid=${tenantid}` ;
   let x = useSession()?.data?.accessToken || '';
   if (x!=session ) setSession(x);
 
@@ -86,7 +91,10 @@ const CrudPage: React.FC = () => {
 
   return (
     <div style={{ maxWidth: '500px', margin: '0 auto' }}>
-      <h1>Tenants Management</h1>
+      <div>
+        <ShowLoginOrLogout />
+      </div>
+      <h1>Tenants Management. Needs Manager role, which is roleid of 3.</h1>
 
       <div style={{ marginBottom: '20px' }}>
         <input
