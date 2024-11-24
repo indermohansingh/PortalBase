@@ -20,6 +20,10 @@ routes:
         ["server_port", "==", "${{CP_GATEWAY_SERVER_PORT}}"]   
     ]
     plugins: 
+      getroleforcp: {}
+      config:
+        headers:
+          Referrer-Policy: "no-referrer"
       openid-connect: 
         client_id: mainappclt
         client_secret: Mgb4X/5RaqAojphemSxN+NLOoSm/+lMLzcHEFmlbrU4

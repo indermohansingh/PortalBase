@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useSession } from 'next-auth/react';
+import { useSearchParams } from 'next/navigation';
 
 type Item = {
   domain: string;
@@ -14,8 +15,11 @@ const CrudPage: React.FC = () => {
   const [realm, setRealm] = useState<string>('');
   const [editingId, setEditingId] = useState<string | null>(null);
   const [session, setSession] = useState(useSession()?.data?.accessToken || '');
+  const searchParams = useSearchParams();
+  let tenantid = "-1";
+  if (searchParams) tenantid = searchParams.get('tenantid') || ""; 
 
-  const apiUrl = `${process.env.NEXT_PUBLIC_BACEND_SERVER_URL}/domainrealmmapping` ;
+  const apiUrl = `${process.env.NEXT_PUBLIC_BACEND_SERVER_URL}/domainrealmmapping?tenantid=${tenantid}` ;
 
   let x = useSession()?.data?.accessToken || '';
   if (x!=session ) setSession(x);

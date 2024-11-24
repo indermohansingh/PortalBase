@@ -1,6 +1,7 @@
 'use client'
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { useSession } from 'next-auth/react';
 
 type Item = {
     tenantid: number;
@@ -11,13 +12,20 @@ const CrudPage: React.FC = () => {
   const [items, setItems] = useState<Item[]>([]);
   const [tenantname, setTenantname] = useState<string>('');
   const [editingId, setEditingId] = useState<number | null>(null);
+  const [session, setSession] = useState(useSession()?.data?.accessToken || '');
 
   const apiUrl = `${process.env.NEXT_PUBLIC_BACEND_SERVER_URL}/tenants` ;
+  let x = useSession()?.data?.accessToken || '';
+  if (x!=session ) setSession(x);
 
   // Fetch items from the backend
   const fetchItems = async () => {
     try {
-      const response = await axios.get(apiUrl);
+      const response = await axios.get(apiUrl, {
+        headers: {
+          'Authorization': `Bearer ${session}`,
+        }
+      });
       setItems(response.data);
     } catch (error) {
       console.error('Error fetching items:', error);
@@ -26,7 +34,7 @@ const CrudPage: React.FC = () => {
 
   useEffect(() => {
     fetchItems();
-  }, []);
+  }, [session]);
 
   // Create or Update
   const handleSave = async () => {

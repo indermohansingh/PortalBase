@@ -18,9 +18,9 @@ export default async function Private() {
       <br></br>
       <a href="/private/createdb">Create DB Here (needs SuperAdmin role. roleid of 1)</a>
       <br></br>
-      <a href="/private/domainrealmmapping">Domain Realm Mapping list Here (needs TenantAdmin role. roleid of 2)</a>
+      <a href="/private/domainrealmmapping?tenantid=1">Domain Realm Mapping list Here. passing tenantid of 1 (needs TenantAdmin role. roleid of 2)</a>
       <br></br>
-      <a href="/private/role">Role list Here (needs TenantAdmin role. roleid of 2)</a>
+      <a href="/private/role">Role list Here. must pass tenantid. (needs TenantAdmin role. roleid of 2)</a>
       <br></br>
       <a href="/private/tenant">Tenant list Here. must pass tenantid. (needs Manager role. roleid of 3)</a>
       <br></br>
