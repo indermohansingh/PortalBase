@@ -1,26 +1,59 @@
-import { getServerSession } from 'next-auth';
-import { getAuthOptions } from '@/app/api/auth/[...nextauth]/route';
+'use client'
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import Cookies from 'js-cookie';
+import { useSession } from 'next-auth/react';
+import { useSearchParams } from 'next/navigation';
+import ShowLoginOrLogout from '@/components/ShowLoginOrLogout';
 
-const apiUrl = `${process.env.NEXT_PUBLIC_BACEND_SERVER_URL}/dropdb` ;
+type Item = {
+  domain: string;
+  realm: string;
+};
 
-export default async function Private() {
-  const selectedRealm = Cookies.get('selectedRealm') || "";
-  const session = await getServerSession(getAuthOptions(selectedRealm));
-  if (session) {
-    const result = await axios.post(apiUrl,null,{
-      headers: {
-        'Authorization': `Bearer ${session.accessToken}`,
-      }
+const CrudPage: React.FC = () => {
+  const [items, setItems] = useState<Item[]>([]);
+  const [session, setSession] = useState(useSession()?.data?.accessToken || '');
+  const searchParams = useSearchParams();
+  let tenantid = "-1";
+  if (searchParams) tenantid = searchParams.get('tenantid') || ""; 
+
+  const apiUrl = `${process.env.NEXT_PUBLIC_BACEND_SERVER_URL}/dropdb` ;
+
+  let x = useSession()?.data?.accessToken || '';
+  if (x!=session ) setSession(x);
+
+  // Fetch items from the backend
+  const fetchItems = async () => {
+    try {
+      if (!session) return;
+      const response = await axios.post(apiUrl, {
+        headers: {
+          'Authorization': `Bearer ${session}`,
+        }
+      });
+      setItems(response.data);
+    } catch (error) {
+      console.error('Error fetching items:', error);
     }
-  );
-    return <div className='flex flex-col space-y-3 justify-center items-center h-screen'>
+  };
+
+  useEffect(() => {
+    fetchItems();
+  }, [session]);
+
+
+  return (
+    <div className='flex flex-col space-y-3 justify-center items-center h-screen'>
+        <div>
+          <ShowLoginOrLogout />
+        </div>
         <div>
         <h1>DB Dropped</h1>
         <br></br>
-        {JSON.stringify(result.data)}
+        {JSON.stringify(items)}
         </div>
     </div>
-  }
-}
+  );
+};
+
+export default CrudPage;

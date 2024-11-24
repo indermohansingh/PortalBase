@@ -19,7 +19,7 @@ local function get_tenantid_from_url()
 end
 
 -- Plugin logic for handling request
-local function handle_request()
+local function handle_request(conf, ctx)
     local tenantid = get_tenantid_from_url()
     local headers = ngx.req.get_headers()
     local auth_header = headers["Authorization"]
@@ -37,19 +37,18 @@ local function handle_request()
     local decoded = jwt:verify("your-jwt-secret", token)
 
     if decoded and decoded.payload and decoded.payload.cprolesbytenant then
-        core.log.debug("Info: tenantid ", tenantid, "; ;role: ", tostring(decoded.payload.cprolesbytenant))
+        core.log.warn("Info: tenantid ", tenantid, "; ;role: ", tostring(decoded.payload.cprolesbytenant))
         -- Loop through the cprolesbytenant in the JWT payload
         for _, role in ipairs(decoded.payload.cprolesbytenant) do
-            core.log.debug("trying matching: tenantid ", tenantid, " with tenant ", role.tenantid, " and role ", role.roleid)
+            core.log.warn("trying matching: tenantid ", tenantid, " with tenant ", role.tenantid, " and role ", role.roleid)
             if role.tenantid == tenantid then
-                -- If tenantid matches, store the roleid in ngx.ctx for further use
-                ngx.ctx.role = role.roleid
-                core.log.debug("Role found for tenantid ", tenantid, ": ", role.roleid)
+                ngx.header["cprole"] = "role.roleid"
+                core.log.warn("Role found for tenantid ", tenantid, ": ", role.roleid)
                 return
             end
         end
     else 
-        core.log.debug("Info: tenantid ", tenantid, "; ;role: cprolesbytenant not found")
+        core.log.warn("Info: tenantid ", tenantid, "; ;role: cprolesbytenant not found")
     end
 
     -- If no matching role is found, log and handle accordingly
@@ -67,6 +66,6 @@ return {
     init_worker = init_worker,
     access = handle_request,
     version = 0.1,
-    priority = 1000,  -- Define the execution priority of this plugin
+    priority = 1,  -- Define the execution priority of this plugin
     name = plugin_name,
 }

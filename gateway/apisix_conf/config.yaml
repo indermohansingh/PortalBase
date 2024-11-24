@@ -43,3 +43,4 @@ plugin_attr:
 
 plugins:
   - getroleforcp
+  - opa

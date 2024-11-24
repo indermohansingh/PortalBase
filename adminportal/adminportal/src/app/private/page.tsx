@@ -1,17 +1,16 @@
 import { getServerSession } from 'next-auth';
-import Logout from '@/components/Logout';
+import ShowLoginOrLogout from '@/components/ShowLoginOrLogout';
 import { getAuthOptions } from '@/app/api/auth/[...nextauth]/route';
 import Cookies from 'js-cookie';
 
 export default async function Private() {
   const selectedRealm = Cookies.get('selectedRealm') || "";
   const session = await getServerSession(getAuthOptions(selectedRealm));
-  if (session) {
+  if (true || session) {
     return <div className='flex flex-col space-y-3 justify-center items-center h-screen'>
       <div>You are accessing a private page</div>
-      <div>Your name is {session.user?.name}</div>
       <div>
-        <Logout />
+        <ShowLoginOrLogout />
       </div>
       <br></br>
       <a href="/private/dropdb">Drop DB Here (needs SuperAdmin role. roleid of 1)</a>

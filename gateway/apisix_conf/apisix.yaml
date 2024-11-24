@@ -14,10 +14,19 @@ routes:
     ]
     upstream_id: upstream_admin_portal
   -
+    id: route_to_server_for_options
+    uri: /*
+    "vars": [
+        ["server_port", "==", "${{CP_GATEWAY_SERVER_PORT}}"]   
+        ["request_method", "==", "OPTIONS"]
+    ]
+    upstream_id: upstream_server
+  -
     id: route_to_server
     uri: /*
     "vars": [
         ["server_port", "==", "${{CP_GATEWAY_SERVER_PORT}}"]   
+        ["request_method", "!=", "OPTIONS"]
     ]
     plugins: 
       getroleforcp: {}
@@ -39,6 +48,15 @@ routes:
         allow_headers: "Content-Type, Authorization"
         expose_headers: "Authorization"
         max_age: 3600
+      opa:
+        host: "http://host.docker.internal:7126"
+        policy: apisixauthz
+        with_service: true
+        with_consumer: true
+        send_headers_upstream: 
+          - "authorization" 
+        input: 
+          cprole: cprole 
     upstream_id: upstream_server
 
 upstreams:

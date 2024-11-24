@@ -27,4 +27,7 @@ ports
     server
         within docker: 3001
         outside world: 7124
+    policyagent/opa
+        within docker: 8181
+        outside world: 7126
 
