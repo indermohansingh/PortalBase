@@ -180,7 +180,7 @@ async function queryElasticsearch(englishQuery) {
         console.log(`${esMapping}`)
 
         // Send the English query to OpenAI
-        const prompt = `Convert the following natural language query into an Elasticsearch DSL query. 
+        let prompt = `Convert the following natural language query into an Elasticsearch DSL query. 
         Take care of nested fields and text fields that are not available for aggregations and sorting. 
         If needed, use doc and not params for nested fields; or keywords. 
         handle for null situations.
@@ -188,10 +188,25 @@ async function queryElasticsearch(englishQuery) {
         Natural Language Query: "${englishQuery}"
         Elasticsearch Mapping: "${esMapping}
         Elasticsearch DSL Query:`;
-                
+
+        prompt = `Given the mapping delimited by triple backticks \`\`\`${esMapping}\`\`\` 
+        translate the text delimited by triple quotes in a valid Elasticsearch DSL query """${englishQuery}""". 
+        Give me only the json code part of the answer without any markdown or code block. `
+
+        const context = `You will help me with generating ElasticSearch DSL query. 
+        I am giving the mapping of the index delimited by triple backticks \`\`\`${esMapping}\`\`\` 
+        Give me only the json code part of the answer without any markdown or code block. 
+        When user gives the natural language text of what is needed, revert with the corresponding DSL. 
+        `
+        prompt = `${englishQuery}`
+
         const response = await openaiobj.chat.completions.create({
             model: "gpt-4o",
             messages: [
+                {
+                    role: "system",
+                    content: `${context}`,
+                },
                 {
                     role: "user",
                     content: `${prompt}`,
@@ -203,20 +218,33 @@ async function queryElasticsearch(englishQuery) {
 
         console.log(elasticQuery);
 
-        // Execute the query in Elasticsearch
-        const result = await esClient.search({
-            index: indexName,
-            body: JSON.parse(elasticQuery),
-        });
-
-        console.log("Search Results:", result);
-        return {
-            query: elasticQuery,
-            result: result
+        try {
+            // Execute the query in Elasticsearch
+            const result = await esClient.search({
+                index: indexName,
+                body: JSON.parse(elasticQuery),
+            });
+            console.log("Search Results:", result);
+            return {
+                query: elasticQuery,
+                message: "success",
+                result: result
+            }
+        } catch (error) {
+            console.error("Error:", error.message);
+            return {
+                query: elasticQuery,
+                message: error.message,
+                result: {"error": error}
+            }
         }
-
     } catch (error) {
         console.error("Error:", error.message);
+        return {
+            query: error.message,
+            message: error.message,
+            result: {"error": error}
+        }
     }
 }  
   

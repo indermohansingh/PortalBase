@@ -55,7 +55,11 @@ const CrudPage: React.FC = () => {
             placeholder="Enter Named Query"
             style={{ overflow: "scroll",  width: "70%", padding: '8px' }}
           />
-          <button onClick={handleGetQuery} style={{ padding: '8px 16px', marginLeft: '10px' }}>
+          <button
+            onClick={handleGetQuery}
+            className={`bg-sky-500 hover:bg-sky-700 px-5 py-2 text-sm leading-5 rounded-full font-semibold text-white
+              disabled:bg-gray-400 disabled:cursor-not-allowed disabled:hover:bg-gray-400`}
+          >
             {'GetQuery'}
           </button>
         </div>
