@@ -13,6 +13,11 @@ allow {
     cprole1 == 1
 }
 
+allow {
+    startswith(request.path, "/getesdsl")
+    input.request.method == "POST"
+}
+
 
 allow {
     startswith(request.path, "/dropdb")

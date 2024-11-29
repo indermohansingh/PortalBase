@@ -31,3 +31,9 @@ ports
         within docker: 8181
         outside world: 7126
 
+==
+
+colima stop
+
+colima start --memory 6 --cpu 6
+docker info

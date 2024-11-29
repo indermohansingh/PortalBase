@@ -24,6 +24,8 @@ export default async function Private() {
       Tenant Here. Needs Manager role, which is roleid of 3. passing <a className="text-blue-500 hover:underline" href="/private/tenant?tenantid=1">  tenantid of WY(1) </a> or  <a className="text-blue-500 hover:underline" href="/private/tenant?tenantid=2">  tenantid of MO(2) </a>
       <br></br>
       User Here. Needs CaseWorker role, which is roleid of 4. passing <a className="text-blue-500 hover:underline" href="/private/user?tenantid=1">  tenantid of WY(1) </a> or  <a className="text-blue-500 hover:underline" href="/private/user?tenantid=2">  tenantid of MO(2) </a>
+      <br></br>
+      Elastic DSL related sample <a className="text-blue-500 hover:underline" href="/private/elastic"> here</a>
     </div>
   }
 }

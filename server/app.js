@@ -1,11 +1,13 @@
+require('dotenv').config();
 const express = require('express');
 const mysql = require('mysql2');
 const bodyParser = require('body-parser');
 const kchelper = require('./kchelper.cjs');
+const openaihelper = require('./openaidsl.cjs');
 
 const app = express();
 const port = 3001;
-
+ 
 // Middleware
 app.use(bodyParser.json());
 
@@ -495,6 +497,17 @@ app.post('/domainrealmmapping', (req, res) => {
   });
   });
   
+// getesdsl
+app.post('/getesdsl', (req, res) => {
+  const { englishquery } = req.body;
+
+  openaihelper.queryes(englishquery).then((dslQry) => {
+    res.status(201).json({ dslQry });
+  }).catch((err) => {
+    console.error('Error getting response from opeanai:', err);
+    return res.status(500).json({ error: 'Internal server error' });
+  })
+});
 
 
 // Start the server

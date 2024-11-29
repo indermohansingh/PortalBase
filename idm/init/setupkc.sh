@@ -4,11 +4,11 @@ echo =======initing==========
 
 # Setup env
 KC_ADMIN_REALM=master
-KC_ADMIN_USER=$KEYCLOAK_ADMIN
+KC_ADMIN_USER=$(echo $KEYCLOAK_ADMIN | tr '[:upper:]' '[:lower:]')
 KC_ADMIN_PWD=$KEYCLOAK_ADMIN_PASSWORD
-KC_NEW_SVC_USR=$KC_NEW_SVC_USER
+KC_NEW_SVC_USR=$(echo $KC_NEW_SVC_USER | tr '[:upper:]' '[:lower:]')
 KC_NEW_SVC_PWD=$KC_NEW_SVC_PAWD
-KC_MAIN_APP_SUPER_USR=$KC_MAINAPP_SUPER_USR
+KC_MAIN_APP_SUPER_USR=$(echo $KC_MAIN_APP_SUPER_USR | tr '[:upper:]' '[:lower:]')
 KC_MAIN_APP_SUPER_PWD=$KC_MAINAPP_SUPER_PWD
 KC_MAIN_APP_CLIENT_SECRET=$KC_MAINAPP_CLIENT_SECRET
 KC_WY_MAIN_APP_CLIENT_SECRET=$KC_WY_MAINAPP_CLIENT_SECRET
@@ -155,20 +155,12 @@ while true; do
         # update mainappclt with above settings.
         echo "$client_settings" | ./bin/kcadm.sh update clients/$CID -r mainapprlm -f -
 
-        # Create mainapprlm's portal roles
-        echo "creating roles ..."
-        ./bin/kcadm.sh create roles -r mainapprlm -s name=SuperAdmin -s description="Super Admin"
-
 
         echo =======Creating Super User for Realm: mainapprlm==========
 
         # Create main app super user
         echo "Creating main app super user..."
         ./bin/kcadm.sh create users -r mainapprlm -s username=$KC_MAIN_APP_SUPER_USR -s enabled=true
-
-        # make user  admin
-        echo "adding roles to user..."
-        ./bin/kcadm.sh add-roles --uusername $KC_MAIN_APP_SUPER_USR --rolename SuperAdmin -r mainapprlm
 
         # Create credentials for new user
         echo "creating creds for user..."

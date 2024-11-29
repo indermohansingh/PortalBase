@@ -44,3 +44,14 @@ plugin_attr:
 plugins:
   - getroleforcp
   - opa
+
+nginx_config:                      # config for render the template to generate nginx.conf
+  http_configuration_snippet: |
+      proxy_buffer_size 128k;
+      proxy_buffers 32 128k;
+      proxy_busy_buffers_size 128k;
+  http_server_configuration_snippet: |
+      proxy_buffer_size 128k;
+      proxy_buffers 32 128k;
+      proxy_busy_buffers_size 128k;
+

@@ -20,7 +20,8 @@
         "request": "launch",
         "name": "server: Launch",
         "skipFiles": ["<node_internals>/**"],
-        "program": "${workspaceFolder}/server/app.js" // replace app.js with your entry point file
+        "cwd": "${workspaceFolder}/server",
+        "program": "app.js" // replace app.js with your entry point file
       }
     ]
   }

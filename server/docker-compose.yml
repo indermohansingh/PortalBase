@@ -3,5 +3,7 @@ services:
     image: server:latest
     restart: always
     container_name: server-container
+    environment:
+      - OPENAI_API_KEY="sk-proj-..."
     ports:
       - "7124:3001"
