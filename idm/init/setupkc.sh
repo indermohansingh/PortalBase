@@ -8,7 +8,7 @@ KC_ADMIN_USER=$(echo $KEYCLOAK_ADMIN | tr '[:upper:]' '[:lower:]')
 KC_ADMIN_PWD=$KEYCLOAK_ADMIN_PASSWORD
 KC_NEW_SVC_USR=$(echo $KC_NEW_SVC_USER | tr '[:upper:]' '[:lower:]')
 KC_NEW_SVC_PWD=$KC_NEW_SVC_PAWD
-KC_MAIN_APP_SUPER_USR=$(echo $KC_MAIN_APP_SUPER_USR | tr '[:upper:]' '[:lower:]')
+KC_MAIN_APP_SUPER_USR=$(echo $KC_MAINAPP_SUPER_USR | tr '[:upper:]' '[:lower:]')
 KC_MAIN_APP_SUPER_PWD=$KC_MAINAPP_SUPER_PWD
 KC_MAIN_APP_CLIENT_SECRET=$KC_MAINAPP_CLIENT_SECRET
 KC_WY_MAIN_APP_CLIENT_SECRET=$KC_WY_MAINAPP_CLIENT_SECRET
@@ -162,10 +162,52 @@ while true; do
         echo "Creating main app super user..."
         ./bin/kcadm.sh create users -r mainapprlm -s username=$KC_MAIN_APP_SUPER_USR -s enabled=true
 
-        # Create credentials for new user
-        echo "creating creds for user..."
-        ./bin/kcadm.sh set-password --username $KC_MAIN_APP_SUPER_USR --new-password $KC_MAIN_APP_SUPER_PWD -r mainapprlm
+        CID=$(./bin/kcadm.sh get users -r mainapprlm  | jq -r '.[] | select(.username == "'$KC_MAIN_APP_SUPER_USR'").id')
 
+        attribute_for_super_usr='
+        {
+            "username": "'${KC_MAIN_APP_SUPER_USR}'",
+            "enabled": true,
+            "credentials": [
+                {
+                    "type": "password",
+                    "value": "'$KC_MAIN_APP_SUPER_PWD'",
+                    "temporary": false
+                }
+            ],
+            "attributes": {
+                "cprolesbytenant": "[{\"tenantid\":-1,\"roleid\":1}]"
+            }
+        }
+        '
+
+        echo "$attribute_for_super_usr" | ./bin/kcadm.sh update users/$CID -r mainapprlm -f -
+
+        echo =======Creating Mapper on  mainappclt with attribute cprolesbytenant==========
+
+        CID=$(./bin/kcadm.sh get clients -r mainapprlm  | jq -r '.[] | select(.clientId == "mainappclt").id')
+
+        attribute_mapper_on_client='
+        {
+            "name": "cprolesbytenant-mapper",
+            "protocol": "openid-connect",
+            "protocolMapper": "oidc-usermodel-attribute-mapper",
+            "consentRequired" : false,
+            "config": {
+                "aggregate.attrs" : "false",
+                "introspection.token.claim" : "true",
+                "multivalued" : "false",
+                "userinfo.token.claim" : "true",
+                "user.attribute" : "cprolesbytenant",
+                "id.token.claim" : "true",
+                "access.token.claim" : "true",
+                "claim.name" : "cprolesbytenant",
+                "jsonType.label" : "JSON"
+            }
+        }
+        '
+
+        echo $attribute_mapper_on_client | ./bin/kcadm.sh create clients/$CID/protocol-mappers/models -r mainapprlm -f -
 
         echo =======Creating IDP for WY==========
 
